@@ -295,30 +295,30 @@ function DashboardPage() {
       }
       else if (custom_ids[i][0] === '20-bit-random-number') {
         if (custom_ids[i][1] === 'D6') {
-          customId += Math.floor(100000 + Math.random() * 900000).String();
+          customId += Math.floor(100000 + Math.random() * 900000).toString();
         }
         else if (custom_ids[i][1] === 'X5') {
-          customId += Math.floor(Math.random() * 0x10000).String(16).toUpperCase().padStart(5, '0');
+          customId += Math.floor(Math.random() * 0x10000).toString(16).toUpperCase().padStart(5, '0');
         }
       }
       else if (custom_ids[i][0] === '32-bit-random-number') {
         if (custom_ids[i][1] === 'D10') {
-          customId += Math.floor(1000000000 + Math.random() * 9000000000).String();
+          customId += Math.floor(1000000000 + Math.random() * 9000000000).toString();
         }
         else if (custom_ids[i][1] === 'X8') {
-          customId += Math.floor(Math.random() * 0x10000000).String(16).toUpperCase().padStart(8, '0');
+          customId += Math.floor(Math.random() * 0x10000000).toString(16).toUpperCase().padStart(8, '0');
         }
       }
       else if (custom_ids[i][0] === '6-digit-random-number') {
-        customId += Math.floor(100000 + Math.random() * 900000).String();
+        customId += Math.floor(100000 + Math.random() * 900000).toString();
       }
       else if (custom_ids[i][0] === '9-digit-random-number') {
-        customId += Math.floor(100000000 + Math.random() * 900000000).String();
+        customId += Math.floor(100000000 + Math.random() * 900000000).toString();
       }
       else if (custom_ids[i][0] === 'guid') {
         customId += 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
           const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-          return v.String(16);
+          return v.toString(16);
         }).toUpperCase();
       }
       else if (custom_ids[i][0] === 'date/time') {
@@ -605,7 +605,7 @@ function DashboardPage() {
                               <option value="">Select field type</option>
                               <option value="string">String</option>
                               <option value="text">Text</option>
-                              <option value="number">Integer</option>
+                              <option value="number">Number</option>
                               <option value="boolean">Boolean</option>
                               <option value="file">File</option>
                             </select>
