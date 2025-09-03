@@ -10,12 +10,12 @@ require('dotenv').config()
 const path = require('path');
 
 
-function isLoggedIn(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect('https://inventory-management-app-ctpn.onrender.com/login');
-}
+// function isLoggedIn(req, res, next) {
+//   if (req.isAuthenticated()) {
+//     return next();
+//   }
+//   res.redirect('https://inventory-management-app-ctpn.onrender.com/login');
+// }
 
 const app = express()
 
@@ -66,9 +66,9 @@ app.get('/auth/github/callback',
     res.redirect('https://inventory-management-app-ctpn.onrender.com/dashboard');
   });
 
-app.get('/dashboard', isLoggedIn, (req, res) => {
-  res.redirect('https://inventory-management-app-ctpn.onrender.com/dashboard');
-});
+// app.get('/dashboard', isLoggedIn, (req, res) => {
+//   res.redirect('https://inventory-management-app-ctpn.onrender.com/dashboard');
+// });
 
 app.get('/api/inventories', (req, res) => {
   db.Inventories.findAll()
