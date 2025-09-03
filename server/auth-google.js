@@ -6,7 +6,7 @@ require('dotenv').config();
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/google/callback"
+    callbackURL: "https://inventory-management-app-ctpn.onrender.com/auth/google/callback"
   },
   function(accessToken, refreshToken, profile, cb) {
     db.User.findOrCreate({
@@ -24,7 +24,7 @@ passport.use(new GoogleStrategy({
 ));
 
 passport.serializeUser(function(user, done) {
-  done(null, user.user_id);
+  done(null, user.id);
 });
 
 passport.deserializeUser(function(id, done) {
