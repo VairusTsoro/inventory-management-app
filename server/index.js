@@ -39,12 +39,6 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname, '../client/dist')));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-});
-
 app.get('/api/auth-status', (req, res) => {
   if (req.isAuthenticated && req.isAuthenticated()) {
     res.json({ loggedIn: true, user: req.user });
@@ -161,6 +155,12 @@ app.get('/api/translate', (req, res) => {
     console.error('Error translating text:', err);
     res.status(500).json({ error: 'Internal Server Error' });
   }
+});
+
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 db.sequelize.authenticate()
