@@ -24,9 +24,9 @@ function LoginPage() {
         data-shape="rectangular"
         data-logo_alignment="left">
       </div> */}
-      <a href="http://localhost:3000/auth/google" data-translate>Sign in with Google</a>
+      <a href="https://inventory-management-app-ctpn.onrender.com/auth/google" data-translate>Sign in with Google</a>
       <br />
-      <a href="http://localhost:3000/auth/github" data-translate>Sign in with GitHub</a>
+      <a href="https://inventory-management-app-ctpn.onrender.com/auth/github" data-translate>Sign in with GitHub</a>
     </div>
   )
 }
