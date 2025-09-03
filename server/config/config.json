@@ -1,0 +1,26 @@
+{
+  "development": {
+    "use_env_variable": "DATABASE_URL",
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
+  },
+  "test": {
+    "username": "neondb_owner",
+    "password": "npg_jHqGY9PEk2pC",
+    "database": "neondb",
+    "host": "ep-muddy-band-abkcrwxr-pooler.eu-west-2.aws.neon.tech",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "neondb_owner",
+    "password": "npg_jHqGY9PEk2pC",
+    "database": "neondb",
+    "host": "ep-muddy-band-abkcrwxr-pooler.eu-west-2.aws.neon.tech",
+    "dialect": "postgres"
+  }
+}

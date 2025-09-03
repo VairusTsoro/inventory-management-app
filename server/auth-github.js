@@ -1,0 +1,34 @@
+const passport = require('passport')
+const GitHubStrategy = require('passport-github2').Strategy
+const db = require('./models')
+require('dotenv').config();
+
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: "http://127.0.0.1:3000/auth/github/callback"
+},
+    function (accessToken, refreshToken, profile, cb) {
+        db.User.findOrCreate({
+            where: { authId: profile.id },
+            defaults: {
+                displayName: profile.displayName,
+                email: profile.emails[0].value
+            }
+        }).then(([user, created]) => {
+            return cb(null, user);
+        }).catch(err => {
+            return cb(err);
+        });
+    }
+));
+
+passport.serializeUser(function (user, done) {
+    done(null, user.id);
+});
+
+passport.deserializeUser(function (id, done) {
+    db.User.findByPk(id).then(function (user) {
+        done(null, user);
+    });
+});
