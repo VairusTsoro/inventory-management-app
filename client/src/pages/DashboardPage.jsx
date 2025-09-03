@@ -152,7 +152,7 @@ function DashboardPage() {
     try {
       const field_is_public_checkboxs = document.querySelectorAll('.field_is_public');
       const result = await createInventory({
-        title, description, category, tags, image, is_public: isPublic, owner_id: user.user_id, has_access: [user.user_id, ...hasAccess],
+        title, description, category, tags, image, is_public: isPublic, owner_id: user.user_id, has_access: String(user.user_id),
         custom_fields: {
           ...fieldNameList.filter(name => name).reduce((acc, name, index) => {
             acc[name] = fieldTypeList[index];
@@ -734,7 +734,7 @@ function DashboardPage() {
               </Tab>
               <Tab className="tab new-inventory-settings-tab" eventKey="inventory_settings" title="Settings">
                 <p data-translate>Settings</p>
-                <label htmlFor="">Users with access to the inventory</label>
+                {/* <label htmlFor="">Users with access to the inventory</label>
                 <br />
                 <ul>
                   {hasAccess.map(userId => (
@@ -748,7 +748,7 @@ function DashboardPage() {
                   } else {
                     setHasAccess([...hasAccess, document.getElementById('new-inventory-new-user-input').value]);
                   }
-                }}>Add User</button>
+                }}>Add User</button> */}
               </Tab>
             </Tabs>
           </Tab>) : null}
@@ -827,12 +827,12 @@ function DashboardPage() {
                   </tr>) : null}
               </tbody>
             </table>
-            <p>Users that have access to this inventory:</p>
+            {/* <p>Users that have access to this inventory:</p>
             <ul>
               {hasAccess.map(user => (
                 <li key={user.user_id}>{user.displayName}</li>
               ))}
-            </ul>
+            </ul> */}
           </Tab>
         ))}
       </Tabs >
