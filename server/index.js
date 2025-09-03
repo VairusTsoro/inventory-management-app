@@ -21,7 +21,7 @@ const app = express()
 const port = process.env.PORT || 3000
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: 'https://inventory-management-app-ctpn.onrender.com',
   credentials: true
 }))
 app.use(session({
@@ -51,22 +51,22 @@ app.get('/auth/google',
 );
 
 app.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: 'http://localhost:5173/login' }),
+  passport.authenticate('google', { failureRedirect: 'https://inventory-management-app-ctpn.onrender.com/login' }),
   function (req, res) {
-    res.redirect('http://localhost:5173/dashboard');
+    res.redirect('https://inventory-management-app-ctpn.onrender.com/dashboard');
   });
 
 app.get('/auth/github',
   passport.authenticate('github', { scope: ['user:email'] }));
 
 app.get('/auth/github/callback',
-  passport.authenticate('github', { failureRedirect: 'http://localhost:5173/login' }),
+  passport.authenticate('github', { failureRedirect: 'https://inventory-management-app-ctpn.onrender.com/login' }),
   function (req, res) {
-    res.redirect('http://localhost:5173/dashboard');
+    res.redirect('https://inventory-management-app-ctpn.onrender.com/dashboard');
   });
 
 app.get('/dashboard', isLoggedIn, (req, res) => {
-  res.redirect('http://localhost:5173/dashboard');
+  res.redirect('https://inventory-management-app-ctpn.onrender.com/dashboard');
 });
 
 app.get('/api/inventories', (req, res) => {
