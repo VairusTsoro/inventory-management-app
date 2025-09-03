@@ -7,13 +7,14 @@ const translate = require('@vitalets/google-translate-api').translate;
 require('./auth-google')
 require('./auth-github')
 require('dotenv').config()
+const path = require('path');
 
 
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.redirect('http://localhost:5173/login');
+  res.redirect('https://inventory-management-app-ctpn.onrender.com/login');
 }
 
 const app = express()
@@ -37,6 +38,12 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(express.json());
+
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
 
 app.get('/api/auth-status', (req, res) => {
   if (req.isAuthenticated && req.isAuthenticated()) {
