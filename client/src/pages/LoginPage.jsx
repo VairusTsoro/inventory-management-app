@@ -8,7 +8,7 @@ function LoginPage() {
   return (
     <div>
       <LightDarkSwitch />
-      <LanguageSelect />
+      {/* <LanguageSelect /> */}
       <h1 data-translate>Sign in to to your profile</h1>
       {/* <script src="https://accounts.google.com/gsi/client" async></script>
       <div id="g_id_onload"

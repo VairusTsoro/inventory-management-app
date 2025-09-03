@@ -421,7 +421,7 @@ function DashboardPage() {
   return (
     <div>
       <LightDarkSwitch />
-      <LanguageSelect />
+      {/* <LanguageSelect /> */}
       <h1 data-translate>Dashboard</h1>
       <Tabs
         activeKey={activeTab}
