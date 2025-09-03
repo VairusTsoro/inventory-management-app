@@ -7,7 +7,7 @@ import LightDarkSwitch from '../components/LightDarkSwitch';
 import LanguageSelect from '../components/LanguageSelect';
 
 function DashboardPage() {
-  let user = {};
+  const [user, setUser] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [inventories, setInventories] = useState([]);
   const [itemsByInventoryId, setItemsByInventoryId] = useState({});
@@ -63,7 +63,7 @@ function DashboardPage() {
     if (res.ok) {
       const data = await res.json();
       setIsLoggedIn(data.loggedIn);
-      if (data.loggedIn) user = data.user;
+      if (data.loggedIn) setUser(data.user);
     }
   };
 
@@ -152,7 +152,7 @@ function DashboardPage() {
     try {
       const field_is_public_checkboxs = document.querySelectorAll('.field_is_public');
       const result = await createInventory({
-        title, description, category, tags, image, is_public: isPublic, owner_id: user.id, has_access: user.id + hasAccess.forEach(user => " " + user.toString()),
+        title, description, category, tags, image, is_public: isPublic, owner_id: user.user_id, has_access: [user.user_id, ...hasAccess],
         custom_fields: {
           ...fieldNameList.filter(name => name).reduce((acc, name, index) => {
             acc[name] = fieldTypeList[index];
@@ -295,30 +295,30 @@ function DashboardPage() {
       }
       else if (custom_ids[i][0] === '20-bit-random-number') {
         if (custom_ids[i][1] === 'D6') {
-          customId += Math.floor(100000 + Math.random() * 900000).toString();
+          customId += Math.floor(100000 + Math.random() * 900000).String();
         }
         else if (custom_ids[i][1] === 'X5') {
-          customId += Math.floor(Math.random() * 0x10000).toString(16).toUpperCase().padStart(5, '0');
+          customId += Math.floor(Math.random() * 0x10000).String(16).toUpperCase().padStart(5, '0');
         }
       }
       else if (custom_ids[i][0] === '32-bit-random-number') {
         if (custom_ids[i][1] === 'D10') {
-          customId += Math.floor(1000000000 + Math.random() * 9000000000).toString();
+          customId += Math.floor(1000000000 + Math.random() * 9000000000).String();
         }
         else if (custom_ids[i][1] === 'X8') {
-          customId += Math.floor(Math.random() * 0x10000000).toString(16).toUpperCase().padStart(8, '0');
+          customId += Math.floor(Math.random() * 0x10000000).String(16).toUpperCase().padStart(8, '0');
         }
       }
       else if (custom_ids[i][0] === '6-digit-random-number') {
-        customId += Math.floor(100000 + Math.random() * 900000).toString();
+        customId += Math.floor(100000 + Math.random() * 900000).String();
       }
       else if (custom_ids[i][0] === '9-digit-random-number') {
-        customId += Math.floor(100000000 + Math.random() * 900000000).toString();
+        customId += Math.floor(100000000 + Math.random() * 900000000).String();
       }
       else if (custom_ids[i][0] === 'guid') {
         customId += 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
           const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-          return v.toString(16);
+          return v.String(16);
         }).toUpperCase();
       }
       else if (custom_ids[i][0] === 'date/time') {
@@ -463,7 +463,7 @@ function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {inventories.filter(inventory => inventory.has_access.includes(toString(user.id))).map((inventory, index) => (
+                  {inventories.filter(inventory => inventory.has_access.includes(String(user.user_id))).map((inventory, index) => (
                     <tr key={inventory.id || index} onClick={() => handleOpenInventory(inventory.id)} title={inventory.description} className="home_inventory_row">
                       <td>{index + 1}</td>
                       <td>{inventory.title}</td>
@@ -473,7 +473,7 @@ function DashboardPage() {
                   ))}
                 </tbody>
               </table>
-            ) : ''}
+            ) : null}
           </div>
         </Tab>
         <Tab eventKey="profile" title="Profile" className='tab'>
@@ -737,17 +737,21 @@ function DashboardPage() {
                 <label htmlFor="">Users with access to the inventory</label>
                 <br />
                 <ul>
-                  {hasAccess.map(user => (
-                    <li >{user}</li>
+                  {hasAccess.map(userId => (
+                    <li key={userId}>{userId}</li>
                   ))}
                 </ul>
-                <input type="text" placeholder='Type user ID, name or email' id='new-inventory-new-user-input'/>
+                <input type="text" placeholder='Type user ID, name or email' id='new-inventory-new-user-input' />
                 <button onClick={() => {
-                  setHasAccess([...hasAccess, document.getElementById('new-inventory-new-user-input').value]);
+                  if (document.getElementById('new-inventory-new-user-input').value === '') {
+                    showToast('Input required', 'Please enter a user ID, name or email.', 'bg-warning');
+                  } else {
+                    setHasAccess([...hasAccess, document.getElementById('new-inventory-new-user-input').value]);
+                  }
                 }}>Add User</button>
               </Tab>
             </Tabs>
-          </Tab>) : ''}
+          </Tab>) : null}
         {inventories.filter(inventory => openedInventories.includes(inventory.id)).map((inventory) => (
           <Tab className="tab inventory-tab" eventKey={`inventory_${inventory.id}`} key={inventory.id}
             title={
@@ -773,16 +777,16 @@ function DashboardPage() {
             <p>Inventory {inventory.title}</p>
             <br />
             <h2>Items</h2>
-            {isLoggedIn && inventory.has_access.includes(toString(user.id)) ? (
+            {isLoggedIn && inventory.has_access.includes(String(user.user_id)) ? (
               <button className='btn btn-danger' onClick={() => handleDeleteSelectedItems(inventory.id)}>Delete Selected Items</button>
-            ) : ''}
+            ) : null}
             <table>
               <thead>
                 <tr>
                   <th>
-                    {isLoggedIn && inventory.has_access.includes(toString(user.id)) ? (
+                    {isLoggedIn && inventory.has_access.includes(String(user.user_id)) ? (
                       <input type="checkbox" name={"items-all-selector"} className={"items-all-selector"} onChange={handleSelectAllItems} />
-                    ) : ''}
+                    ) : null}
                     #
                   </th>
                   {Object.values(inventory.custom_ids || {}).length !== 0 && <th>ID</th>}
@@ -795,9 +799,9 @@ function DashboardPage() {
                 {(Object.entries(itemsByInventoryId[inventory.id] || {})).map(([itemId, item]) => (
                   <tr key={`item-field-${item.id}`}>
                     <td>
-                      {isLoggedIn && inventory.has_access.includes(toString(user.id)) ? (
+                      {isLoggedIn && inventory.has_access.includes(String(user.user_id)) ? (
                         <input type="checkbox" name={"item-selector"} className={"item-selector"} data-item-id={item.id} />
-                      ) : ''}
+                      ) : null}
                       {parseInt(itemId) + 1}
                     </td>
                     {Object.values(inventory.custom_ids || {}).length !== 0 && <td>{item.custom_id}</td>}
@@ -806,7 +810,7 @@ function DashboardPage() {
                     ))}
                   </tr>
                 ))}
-                {isLoggedIn && inventory.has_access.includes(toString(user.id)) ? (
+                {isLoggedIn && inventory.has_access.includes(String(user.user_id)) ? (
                   <tr>
                     <td>
                       <button className="btn btn-primary" onClick={() => addItem(inventory.id)}><b>+</b></button>
@@ -820,13 +824,13 @@ function DashboardPage() {
                     <td colSpan={Object.keys(inventory.custom_fields || {}).length + 2}>
                       <input type="checkbox" name='new-item-is-public' id='new-item-is-public' />
                     </td>
-                  </tr>) : ''}
+                  </tr>) : null}
               </tbody>
             </table>
             <p>Users that have access to this inventory:</p>
             <ul>
               {hasAccess.map(user => (
-                <li key={user.id}>{user.displayName}</li>
+                <li key={user.user_id}>{user.displayName}</li>
               ))}
             </ul>
           </Tab>
@@ -835,7 +839,7 @@ function DashboardPage() {
 
       <div className="position-fixed bottom-0 end-0 p-3" style={{ zIndex: 11 }}>
         <div
-          className={`toast ${toast.show ? 'show' : ''}`}
+          className={`toast ${toast.show ? 'show' : null}`}
           role="alert"
           aria-live="assertive"
           aria-atomic="true"
