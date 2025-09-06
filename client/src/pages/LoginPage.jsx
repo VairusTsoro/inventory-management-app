@@ -1,34 +1,41 @@
-import '../styles/LoginPage.css'
+import '../styles/LoginPage.css';
 import LightDarkSwitch from '../components/LightDarkSwitch';
 import LanguageSelect from '../components/LanguageSelect';
 
-// const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
 function LoginPage() {
   return (
-    <div>
+    <div className="login-page-container">
       <LightDarkSwitch />
       {/* <LanguageSelect /> */}
-      <h1 data-translate>Sign in to to your profile</h1>
-      {/* <script src="https://accounts.google.com/gsi/client" async></script>
-      <div id="g_id_onload"
-        data-client_id={GOOGLE_CLIENT_ID}
-        data-login_uri="http://localhost:3000/auth/google"
-        data-auto_prompt="false">
+      <h1 data-translate>Sign in to your profile</h1>
+      <div className="login-buttons">
+        <a
+          href="https://inventory-management-app-ctpn.onrender.com/auth/google"
+          className="login-btn google-btn"
+          data-translate
+        >
+          <img
+            src="https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s96-fcrop64=1,00000000ffffffff-rw"
+            alt="Google logo"
+            className="login-logo"
+          />
+          Sign in with Google
+        </a>
+        <a
+          href="https://inventory-management-app-ctpn.onrender.com/auth/github"
+          className="login-btn github-btn"
+          data-translate
+        >
+          <img
+            src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+            alt="GitHub logo"
+            className="login-logo"
+          />
+          Sign in with GitHub
+        </a>
       </div>
-      <div className="g_id_signin"
-        data-type="standard"
-        data-size="large"
-        data-theme="outline"
-        data-text="sign_in_with"
-        data-shape="rectangular"
-        data-logo_alignment="left">
-      </div> */}
-      <a href="https://inventory-management-app-ctpn.onrender.com/auth/google" data-translate>Sign in with Google</a>
-      <br />
-      <a href="https://inventory-management-app-ctpn.onrender.com/auth/github" data-translate>Sign in with GitHub</a>
     </div>
-  )
+  );
 }
 
 export default LoginPage;

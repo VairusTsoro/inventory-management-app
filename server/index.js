@@ -2,6 +2,7 @@ const express = require('express')
 const db = require('./models')
 const cors = require('cors')
 const session = require('express-session')
+const SequelizeStore = require('connect-session-sequelize')(session.Store)
 const passport = require('passport')
 const translate = require('@vitalets/google-translate-api').translate;
 require('./auth-google')
@@ -9,16 +10,7 @@ require('./auth-github')
 require('dotenv').config()
 const path = require('path');
 
-
-// function isLoggedIn(req, res, next) {
-//   if (req.isAuthenticated()) {
-//     return next();
-//   }
-//   res.redirect('https://inventory-management-app-ctpn.onrender.com/login');
-// }
-
 const app = express()
-
 const port = process.env.PORT || 3000
 
 app.use(cors({
@@ -27,10 +19,13 @@ app.use(cors({
 }))
 app.use(session({
   secret: process.env.SESSION_SECRET,
+  store: new SequelizeStore({
+    db: db.sequelize,
+  }),
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // true if HTTPS
+    secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     sameSite: 'lax'
   }
@@ -65,10 +60,6 @@ app.get('/auth/github/callback',
   function (req, res) {
     res.redirect('https://inventory-management-app-ctpn.onrender.com/dashboard');
   });
-
-// app.get('/dashboard', isLoggedIn, (req, res) => {
-//   res.redirect('https://inventory-management-app-ctpn.onrender.com/dashboard');
-// });
 
 app.get('/api/inventories', (req, res) => {
   db.Inventories.findAll()
