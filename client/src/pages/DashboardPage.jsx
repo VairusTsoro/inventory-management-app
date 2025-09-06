@@ -739,7 +739,7 @@ function DashboardPage() {
                       )}
                     </div>
                   ))}
-                  <button type="button" className="btn btn-secondary mt-2" onClick={customIdList.filter(type => !(item.type === '' && item.value === '')).length < 10 ? addCustomId : () => showToast('Limit reached', 'You can only add up to 10 custom IDs.', 'bg-warning')}>
+                  <button type="button" className="btn btn-secondary mt-2" onClick={customIdList.filter(item => item.type !== '' && item.value !== '').length < 10 ? addCustomId : () => showToast('Limit reached', 'You can only add up to 10 custom IDs.', 'bg-warning')}>
                     Add Custom ID
                   </button>
                 </div>
