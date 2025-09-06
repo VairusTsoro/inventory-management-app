@@ -34,6 +34,23 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.use(express.json());
 
+app.get('/login', (req, res) => {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    res.redirect('https://inventory-management-app-ctpn.onrender.com/dashboard');
+  } else {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  }
+});
+
+app.post('/api/logout', (req, res) => {
+  req.logout(() => {
+    req.session.destroy(() => {
+      res.clearCookie('connect.sid');
+      res.json({ success: true });
+    });
+  });
+});
+
 app.get('/api/auth-status', (req, res) => {
   if (req.isAuthenticated && req.isAuthenticated()) {
     res.json({ loggedIn: true, user: req.user });

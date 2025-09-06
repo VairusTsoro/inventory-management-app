@@ -422,6 +422,18 @@ function DashboardPage() {
     <div>
       <LightDarkSwitch />
       {/* <LanguageSelect /> */}
+      <button
+        className="btn btn-secondary"
+        onClick={async () => {
+          await fetch('/api/logout', {
+            method: 'POST',
+            credentials: 'include'
+          });
+          window.location.href = '/login';
+        }}
+      >
+        Logout
+      </button>
       <h1 data-translate>Dashboard</h1>
       <Tabs
         activeKey={activeTab}
@@ -727,7 +739,7 @@ function DashboardPage() {
                       )}
                     </div>
                   ))}
-                  <button type="button" className="btn btn-secondary mt-2" onClick={customIdList.filter(type => type !== '').length < 10 ? addCustomId : () => showToast('Limit reached', 'You can only add up to 10 custom IDs.', 'bg-warning')}>
+                  <button type="button" className="btn btn-secondary mt-2" onClick={customIdList.filter(type => !(item.type === '' && item.value === '')).length < 10 ? addCustomId : () => showToast('Limit reached', 'You can only add up to 10 custom IDs.', 'bg-warning')}>
                     Add Custom ID
                   </button>
                 </div>
