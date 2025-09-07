@@ -111,7 +111,11 @@ function DashboardPage() {
       inventory_id: inventoryId,
       custom_fields: {
         ...newItemFieldElements.reduce((acc, field) => {
-          acc[field.dataset.fieldType] = field.value;
+          acc[field.dataset.fieldType] = () => {
+            if (field.type === 'checkbox') return field.checked;
+            if (field.type === 'file') return field.files;
+            return field.value;
+          };
           return acc;
         }, {})
       }
@@ -209,7 +213,7 @@ function DashboardPage() {
 
   const handleAddField = () => {
     if (fieldStateList.length >= 15) {
-      showToast('Limit reached', 'You can\'t add up to 15 fields', 'bg-warning');
+      showToast('Limit reached', 'You can add up to 15 fields', 'bg-warning');
       return;
     }
     setFieldNameList(prev => [...prev, '']);
@@ -290,36 +294,22 @@ function DashboardPage() {
   function customIdGenerator(custom_ids, sequenceNumber) {
     let customId = '';
     custom_ids.map((_, i) => {
-      if (custom_ids[i][0] === 'fixed') {
-        customId += custom_ids[i][1];
-      }
+      if (custom_ids[i][0] === 'fixed') customId += custom_ids[i][1];
       else if (custom_ids[i][0] === '20-bit-random-number') {
-        if (custom_ids[i][1] === 'D6') {
-          customId += Math.floor(100000 + Math.random() * 900000).toString();
-        }
-        else if (custom_ids[i][1] === 'X5') {
-          customId += Math.floor(Math.random() * 0x10000).toString(16).toUpperCase().padStart(5, '0');
-        }
+        if (custom_ids[i][1] === 'D6') customId += Math.floor(100000 + Math.random() * 900000).toString();
+        else if (custom_ids[i][1] === 'X5') customId += Math.floor(Math.random() * 0x10000).toString(16).toUpperCase().padStart(5, '0');
       }
       else if (custom_ids[i][0] === '32-bit-random-number') {
-        if (custom_ids[i][1] === 'D10') {
-          customId += Math.floor(1000000000 + Math.random() * 9000000000).toString();
-        }
-        else if (custom_ids[i][1] === 'X8') {
-          customId += Math.floor(Math.random() * 0x10000000).toString(16).toUpperCase().padStart(8, '0');
-        }
+        if (custom_ids[i][1] === 'D10') customId += Math.floor(1000000000 + Math.random() * 9000000000).toString();
+        else if (custom_ids[i][1] === 'X8') customId += Math.floor(Math.random() * 0x10000000).toString(16).toUpperCase().padStart(8, '0');
       }
       else if (custom_ids[i][0] === '6-digit-random-number') {
-        if (custom_ids[i][1] === 'D6')
-          customId += Math.floor(100000 + Math.random() * 900000).toString();
-        else if (custom_ids[i][1] === 'X6')
-          customId += Math.floor(Math.random() * 0x100000).toString(16).toUpperCase().padStart(6, '0');
+        if (custom_ids[i][1] === 'D6') customId += Math.floor(100000 + Math.random() * 900000).toString();
+        else if (custom_ids[i][1] === 'X6') customId += Math.floor(Math.random() * 0x100000).toString(16).toUpperCase().padStart(6, '0');
       }
       else if (custom_ids[i][0] === '9-digit-random-number') {
-        if (custom_ids[i][1] === 'D9')
-          customId += Math.floor(100000000 + Math.random() * 900000000).toString();
-        else if (custom_ids[i][1] === 'X9')
-          customId += Math.floor(Math.random() * 0x100000000).toString(16).toUpperCase().padStart(9, '0');
+        if (custom_ids[i][1] === 'D9') customId += Math.floor(100000000 + Math.random() * 900000000).toString();
+        else if (custom_ids[i][1] === 'X9') customId += Math.floor(Math.random() * 0x100000000).toString(16).toUpperCase().padStart(9, '0');
       }
       else if (custom_ids[i][0] === 'guid') {
         customId += 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -341,16 +331,10 @@ function DashboardPage() {
         customId += formatString.replace(/yyyy|mm|dd|ddd|hh|mmm/g, match => formatValues[match]);
       }
       else if (custom_ids[i][0] === 'sequence') {
-        if (custom_ids[i][1] === 'D4') {
-          customId += String(sequenceNumber).padStart(4, '0');
-        }
-        else if (custom_ids[i][1] === 'D') {
-          customId += String(sequenceNumber);
-        }
+        if (custom_ids[i][1] === 'D4') customId += String(sequenceNumber).padStart(4, '0');
+        else if (custom_ids[i][1] === 'D') customId += String(sequenceNumber);
       }
-      if (i != custom_ids.length - 1) {
-        customId += '_';
-      }
+      if (i != custom_ids.length - 1) customId += '_';
     });
     return customId;
   };
@@ -389,38 +373,33 @@ function DashboardPage() {
       showToast('Warning', 'No items selected', 'bg-warning');
       return;
     }
-    showToast(
-      'Warning',
-      'Are you sure you want to delete selected items? This action cannot be undone.',
-      'bg-warning',
-      () => {
-        Promise.all(selectedItemIds.map(itemId =>
-          fetch(`/api/items`, {
-
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id: itemId }),
-          })
-        )).then(responses => {
-          if (responses.some(res => !res.ok)) {
-            throw new Error('Network response was not ok');
-          }
-          setItemsByInventoryId(prev => ({
-            ...prev,
-            [inventoryId]: prev[inventoryId].filter(item => !selectedItemIds.includes(item.id))
-          }));
-          console.log(itemsByInventoryId);
-          showToast('Success', "Items deleted successfully", 'bg-success');
-          document.querySelector('.items-all-selector').checked = false;
-          itemSelectors.forEach(input => {
-            input.checked = false;
-          });
-        }).catch(err => {
-          showToast('Error', 'Failed to delete selected items', 'bg-danger');
+    showToast('Warning', 'Are you sure you want to delete selected items? This action cannot be undone.', 'bg-warning', () => {
+      Promise.all(selectedItemIds.map(itemId =>
+        fetch(`/api/items`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: itemId }),
+        })
+      )).then(responses => {
+        if (responses.some(res => !res.ok)) {
+          throw new Error('Network response was not ok');
+        }
+        setItemsByInventoryId(prev => ({
+          ...prev,
+          [inventoryId]: prev[inventoryId].filter(item => !selectedItemIds.includes(item.id))
+        }));
+        console.log(itemsByInventoryId);
+        showToast('Success', "Items deleted successfully", 'bg-success');
+        document.querySelector('.items-all-selector').checked = false;
+        itemSelectors.forEach(input => {
+          input.checked = false;
         });
-      }
+      }).catch(err => {
+        showToast('Error', 'Failed to delete selected items', 'bg-danger');
+      });
+    }
     );
   }
 

@@ -168,7 +168,6 @@ app.get('/api/translate', (req, res) => {
 app.post('/api/inventories/:id/add-access', async (req, res) => {
   const { id } = req.params;
   const { userIdentifier } = req.body;
-
   const user = await db.Users.findOne({
     where: {
       [db.Sequelize.Op.or]: [
@@ -179,10 +178,8 @@ app.post('/api/inventories/:id/add-access', async (req, res) => {
     }
   });
   if (!user) return res.status(404).json({ error: 'User not found' });
-
   const inventory = await db.Inventories.findByPk(id);
   if (!inventory) return res.status(404).json({ error: 'Inventory not found' });
-
   if (!inventory.has_access.includes(user.user_id)) {
     inventory.has_access.push(user.user_id);
     await inventory.save();

@@ -3,20 +3,21 @@
 }
 
 form {
-    width: 100%;
-    margin: 0;
-    padding: 20px;
-    box-shadow: none;
-    border: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
+  width: 100%;
+  margin: 0;
+  padding: 20px;
+  box-shadow: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .tabs {
-  width: 100%;;
+  width: 100%;
+  ;
 }
 
 .tab {
@@ -38,10 +39,10 @@ table {
 }
 
 .custom-id-drag-over {
-    border: 2px dashed #919191;
-    background-color: #ededed;
-    padding: 10px;
-    margin-bottom: 10px;
+  border: 2px dashed #919191;
+  background-color: #ededed;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
 .div-drag-icon {
@@ -71,10 +72,10 @@ table {
 }
 
 .custom-id-drag-delete {
-    border: 2px dashed #fbb6bb;
-    background-color: #ffd0d4;
-    padding: 10px;
-    margin-bottom: 10px;
+  border: 2px dashed #fbb6bb;
+  background-color: #ffd0d4;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
 .custom-id-select {
@@ -92,7 +93,7 @@ table {
 
 .field-table th {
   vertical-align: middle;
-  text-align: center; 
+  text-align: center;
 }
 
 .field-table td {
