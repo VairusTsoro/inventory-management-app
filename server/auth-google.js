@@ -9,7 +9,7 @@ passport.use(new GoogleStrategy({
     callbackURL: "https://inventory-management-app-ctpn.onrender.com/auth/google/callback"
   },
   function(accessToken, refreshToken, profile, cb) {
-    db.User.findOrCreate({
+    db.Users.findOrCreate({
       where: { authId: profile.id },
       defaults: {
         displayName: profile.displayName,
@@ -28,7 +28,7 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  db.User.findByPk(id).then(function(user) {
+  db.Users.findByPk(id).then(function(user) {
     done(null, user);
   });
 });
