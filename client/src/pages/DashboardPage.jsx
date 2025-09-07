@@ -897,7 +897,7 @@ function DashboardPage() {
             />
             <button
               type="button"
-              onClick={addUserToAccess(inventory.id)}
+              onClick={() => addUserToAccess(inventory.id)}
             >
               Add User
             </button>
