@@ -30,8 +30,8 @@ function DashboardPage() {
     'fixed': 0,
     '20-bit-random-number': 1,
     '32-bit-random-number': 2,
-    '6-digit-random': 3,
-    '9-digit-random': 4,
+    '6-digit-random-number': 3,
+    '9-digit-random-number': 4,
     'guid': 5,
     'sequence': 6,
     'date/time': 7
