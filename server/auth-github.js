@@ -13,7 +13,7 @@ passport.use(new GitHubStrategy({
             ? profile.emails[0].value
             : null; // or use '' if you prefer
 
-        db.User.findOrCreate({
+        db.Users.findOrCreate({
             where: { authId: profile.id },
             defaults: {
                 displayName: profile.displayName,
