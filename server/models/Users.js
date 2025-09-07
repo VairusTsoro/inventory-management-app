@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     is_admin: {
       type: DataTypes.BOOLEAN,

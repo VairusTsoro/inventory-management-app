@@ -19,12 +19,13 @@ function DashboardPage() {
   const [image, setImage] = useState('');
   const [isPublic, setIsPublic] = useState(false);
   const [hasAccess, setHasAccess] = useState([]);
+  const [newUserInput, setNewUserInput] = useState('');
   const [fieldNameList, setFieldNameList] = useState(Array(15).fill(""));
   const [fieldTypeList, setFieldTypeList] = useState(Array(15).fill(""));
   const [fieldStateList, setFieldStateList] = useState(Array(15).fill(false));
   const [customIdList, setCustomIdList] = useState([{ type: 'fixed', value: 'ABC' }, { type: '20-bit-random-number', value: 'D6' }, { type: 'sequence', value: 'D4' }, { type: 'date/time', value: 'yyyy-mm-dd' }, { type: '', value: '' }, { type: '', value: '' }, { type: '', value: '' }, { type: '', value: '' }, { type: '', value: '' }, { type: '', value: '' }]);
   const customIdFormating = // fixed, 20-bit random, 32-bit random, 6-digit random, 9-digit random, guid, sequence, date/time
-    [["input"], ["D6", "X5"], ["D10", "X8"], ["Default"], ["Default"], ["Default"], ["D4", "D"], ['yyyy-mm-dd-hh-mmm', 'hh-mmm', 'yyyy-mm-dd', 'yyyy', 'mm', 'dd', 'ddd', 'yyyy-mm', 'mm-dd', 'mm-ddd']];
+    [["input"], ["D6", "X5"], ["D10", "X8"], ["D6", "X6"], ["D9", "X9"], ["Default"], ["D4", "D"], ['yyyy-mm-dd-hh-mmm', 'hh-mmm', 'yyyy-mm-dd', 'yyyy', 'mm', 'dd', 'ddd', 'yyyy-mm', 'mm-dd', 'mm-ddd']];
   const customIdFormatingIndexes = {
     'fixed': 0,
     '20-bit-random-number': 1,
@@ -310,10 +311,16 @@ function DashboardPage() {
         }
       }
       else if (custom_ids[i][0] === '6-digit-random-number') {
-        customId += Math.floor(100000 + Math.random() * 900000).toString();
+        if (custom_ids[i][1] === 'D6')
+          customId += Math.floor(100000 + Math.random() * 900000).toString();
+        else if (custom_ids[i][1] === 'X6')
+          customId += Math.floor(Math.random() * 0x100000).toString(16).toUpperCase().padStart(6, '0');
       }
       else if (custom_ids[i][0] === '9-digit-random-number') {
-        customId += Math.floor(100000000 + Math.random() * 900000000).toString();
+        if (custom_ids[i][1] === 'D9')
+          customId += Math.floor(100000000 + Math.random() * 900000000).toString();
+        else if (custom_ids[i][1] === 'X9')
+          customId += Math.floor(Math.random() * 0x100000000).toString(16).toUpperCase().padStart(9, '0');
       }
       else if (custom_ids[i][0] === 'guid') {
         customId += 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -418,22 +425,45 @@ function DashboardPage() {
     );
   }
 
+  const addUserToAccess = async () => {
+    if (!newUserInput.trim()) {
+      showToast('Input required', 'Please enter a user ID, name or email.', 'bg-warning');
+      return;
+    }
+    const res = await fetch(`/api/inventories/${selectedInventoryId}/add-access`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userIdentifier: newUserInput.trim() }),
+      credentials: 'include'
+    });
+    const data = await res.json();
+    if (data.success) {
+      setHasAccess(data.has_access);
+      setNewUserInput('');
+      showToast('Success', 'User added to access list.', 'bg-success');
+    } else {
+      showToast('Error', 'Failed to add user.', 'bg-danger');
+    }
+  };
+
   return (
     <div>
       <LightDarkSwitch />
       {/* <LanguageSelect /> */}
-      <button
-        className="btn btn-secondary"
-        onClick={async () => {
-          await fetch('/api/logout', {
-            method: 'POST',
-            credentials: 'include'
-          });
-          window.location.href = '/login';
-        }}
-      >
-        Logout
-      </button>
+      {isLoggedIn && (
+        <button
+          className="btn btn-secondary logout_btn"
+          onClick={async () => {
+            await fetch('/api/logout', {
+              method: 'POST',
+              credentials: 'include'
+            });
+            window.location.href = '/login';
+          }}
+        >
+          Logout
+        </button>
+      )}
       <h1 data-translate>Dashboard</h1>
       <Tabs
         activeKey={activeTab}
@@ -443,6 +473,7 @@ function DashboardPage() {
         data-translate
       >
         <Tab eventKey="home" title="Home" className='tab'>
+          <p data-translate>Public inventories:</p>
           <div className="inventories-container">
             <table className='table public-inventories'>
               <thead>
@@ -464,7 +495,8 @@ function DashboardPage() {
                 ))}
               </tbody>
             </table>
-            {isLoggedIn ? (
+            <p data-translate>Inventories you have access to:</p>
+            {isLoggedIn && (
               <table className="table accessible-inventories">
                 <thead>
                   <tr>
@@ -485,16 +517,41 @@ function DashboardPage() {
                   ))}
                 </tbody>
               </table>
-            ) : null}
+            )}
           </div>
         </Tab>
-        <Tab eventKey="profile" title="Profile" className='tab'>
-          <p data-translate>Welcome to the profile tab!</p>
-        </Tab>
+        {isLoggedIn && (
+          <Tab eventKey="profile" title="Profile" className='tab'>
+            <p data-translate>Welcome to the profile tab!</p>
+            <p data-translate><strong>Name:</strong> {user.displayName}</p>
+            <p data-translate><strong>Email:</strong> {user?.email}</p>
+            <p data-translate>Your inventories:</p>
+            <table className="table accessible-inventories">
+              <thead>
+                <tr>
+                  <th scope='col' data-translate>#</th>
+                  <th scope='col' data-translate>Title</th>
+                  <th scope='col' data-translate>Category</th>
+                  <th scope='col' data-translate>Tags</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inventories.filter(inventory => inventory.owner_id === user.user_id).map((inventory, index) => (
+                  <tr key={inventory.id || index} onClick={() => handleOpenInventory(inventory.id)} title={inventory.description} className="home_inventory_row">
+                    <td>{index + 1}</td>
+                    <td>{inventory.title}</td>
+                    <td>{inventory.category}</td>
+                    <td title={inventory.tags}>{inventory.tags}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Tab>
+        )}
         <Tab eventKey="user_settings" title="Settings" className='tab'>
           <p data-translate>Welcome to the settings tab!</p>
         </Tab>
-        {isLoggedIn ? (
+        {isLoggedIn && (
           <Tab eventKey="new_inventory" title="New Inventory" className='tab new-inventory-tab'>
             <Tabs className='tabs new-inventory-tabs'>
               <Tab eventKey="details" title="Details">
@@ -744,26 +801,8 @@ function DashboardPage() {
                   </button>
                 </div>
               </Tab>
-              <Tab className="tab new-inventory-settings-tab" eventKey="inventory_settings" title="Settings">
-                <p data-translate>Settings</p>
-                {/* <label htmlFor="">Users with access to the inventory</label>
-                <br />
-                <ul>
-                  {hasAccess.map(userId => (
-                    <li key={userId}>{userId}</li>
-                  ))}
-                </ul>
-                <input type="text" placeholder='Type user ID, name or email' id='new-inventory-new-user-input' />
-                <button onClick={() => {
-                  if (document.getElementById('new-inventory-new-user-input').value === '') {
-                    showToast('Input required', 'Please enter a user ID, name or email.', 'bg-warning');
-                  } else {
-                    setHasAccess([...hasAccess, document.getElementById('new-inventory-new-user-input').value]);
-                  }
-                }}>Add User</button> */}
-              </Tab>
             </Tabs>
-          </Tab>) : null}
+          </Tab>)}
         {inventories.filter(inventory => openedInventories.includes(inventory.id)).map((inventory) => (
           <Tab className="tab inventory-tab" eventKey={`inventory_${inventory.id}`} key={inventory.id}
             title={
@@ -789,16 +828,16 @@ function DashboardPage() {
             <p>Inventory {inventory.title}</p>
             <br />
             <h2>Items</h2>
-            {isLoggedIn && inventory.has_access.includes(String(user.user_id)) ? (
+            {isLoggedIn && inventory.has_access.includes(user.user_id) && (
               <button className='btn btn-danger' onClick={() => handleDeleteSelectedItems(inventory.id)}>Delete Selected Items</button>
-            ) : null}
+            )}
             <table>
               <thead>
                 <tr>
                   <th>
-                    {isLoggedIn && inventory.has_access.includes(String(user.user_id)) ? (
+                    {isLoggedIn && inventory.has_access.includes(String(user.user_id)) && (
                       <input type="checkbox" name={"items-all-selector"} className={"items-all-selector"} onChange={handleSelectAllItems} />
-                    ) : null}
+                    )}
                     #
                   </th>
                   {Object.values(inventory.custom_ids || {}).length !== 0 && <th>ID</th>}
@@ -822,7 +861,7 @@ function DashboardPage() {
                     ))}
                   </tr>
                 ))}
-                {isLoggedIn && inventory.has_access.includes(String(user.user_id)) ? (
+                {isLoggedIn && inventory.has_access.includes(String(user.user_id)) && (
                   <tr>
                     <td>
                       <button className="btn btn-primary" onClick={() => addItem(inventory.id)}><b>+</b></button>
@@ -836,15 +875,29 @@ function DashboardPage() {
                     <td colSpan={Object.keys(inventory.custom_fields || {}).length + 2}>
                       <input type="checkbox" name='new-item-is-public' id='new-item-is-public' />
                     </td>
-                  </tr>) : null}
+                  </tr>)}
               </tbody>
             </table>
-            {/* <p>Users that have access to this inventory:</p>
+            <label htmlFor="new-inventory-new-user-input">Users with access to the inventory</label>
+            <br />
             <ul>
-              {hasAccess.map(user => (
-                <li key={user.user_id}>{user.displayName}</li>
+              {hasAccess.map(userId => (
+                <li key={userId}>{userId}</li>
               ))}
-            </ul> */}
+            </ul>
+            <input
+              type="text"
+              placeholder="Type user ID, name or email"
+              id="new-inventory-new-user-input"
+              value={newUserInput}
+              onChange={e => setNewUserInput(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={addUserToAccess(inventory.id)}
+            >
+              Add User
+            </button>
           </Tab>
         ))}
       </Tabs >

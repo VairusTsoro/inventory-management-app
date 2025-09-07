@@ -116,3 +116,17 @@ table {
   border-radius: 10px;
   transform: scale(1.05);
 }
+
+.logout_btn {
+  width: 100px;
+  background-color: #9b8f92;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.logout_btn:hover {
+  background-color: #83656b;
+}

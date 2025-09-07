@@ -55,8 +55,9 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     has_access: {
-      type: DataTypes.STRING,
-      allowNull: false
+      type: DataTypes.ARRAY(DataTypes.UUID),
+      allowNull: false,
+      defaultValue: []
     },
     custom_fields: {
       type: DataTypes.JSON,
