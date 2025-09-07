@@ -431,12 +431,12 @@ function DashboardPage() {
     );
   }
 
-  const addUserToAccess = async () => {
+  const addUserToAccess = async (inventory_id) => {
     if (!newUserInput.trim()) {
       showToast('Input required', 'Please enter a user ID, name or email.', 'bg-warning');
       return;
     }
-    const res = await fetch(`/api/inventories/${selectedInventoryId}/add-access`, {
+    const res = await fetch(`/api/inventories/${inventory_id}/add-access`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userIdentifier: newUserInput.trim() }),
@@ -513,7 +513,7 @@ function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {inventories.filter(inventory => inventory.has_access.includes(String(user.user_id))).map((inventory, index) => (
+                  {inventories.filter(inventory => inventory.has_access.includes(user.user_id)).map((inventory, index) => (
                     <tr key={inventory.id || index} onClick={() => handleOpenInventory(inventory.id)} title={inventory.description} className="home_inventory_row">
                       <td>{index + 1}</td>
                       <td>{inventory.title}</td>
@@ -838,7 +838,7 @@ function DashboardPage() {
               <thead>
                 <tr>
                   <th>
-                    {isLoggedIn && inventory.has_access.includes(String(user.user_id)) && (
+                    {isLoggedIn && inventory.has_access.includes(user.user_id) && (
                       <input type="checkbox" name={"items-all-selector"} className={"items-all-selector"} onChange={handleSelectAllItems} />
                     )}
                     #
@@ -853,7 +853,7 @@ function DashboardPage() {
                 {(Object.entries(itemsByInventoryId[inventory.id] || {})).map(([itemId, item]) => (
                   <tr key={`item-field-${item.id}`}>
                     <td>
-                      {isLoggedIn && inventory.has_access.includes(String(user.user_id)) ? (
+                      {isLoggedIn && inventory.has_access.includes(user.user_id) ? (
                         <input type="checkbox" name={"item-selector"} className={"item-selector"} data-item-id={item.id} />
                       ) : null}
                       {parseInt(itemId) + 1}
@@ -864,7 +864,7 @@ function DashboardPage() {
                     ))}
                   </tr>
                 ))}
-                {isLoggedIn && inventory.has_access.includes(String(user.user_id)) && (
+                {isLoggedIn && inventory.has_access.includes(user.user_id) && (
                   <tr>
                     <td>
                       <button className="btn btn-primary" onClick={() => addItem(inventory.id)}><b>+</b></button>
@@ -881,26 +881,29 @@ function DashboardPage() {
                   </tr>)}
               </tbody>
             </table>
-            <label htmlFor="new-inventory-new-user-input">Users with access to the inventory</label>
-            <br />
-            <ul>
-              {hasAccess.map(userId => (
-                <li key={userId}>{userId}</li>
-              ))}
-            </ul>
-            <input
-              type="text"
-              placeholder="Type user ID, name or email"
-              id="new-inventory-new-user-input"
-              value={newUserInput}
-              onChange={e => setNewUserInput(e.target.value)}
-            />
-            <button
-              type="button"
-              onClick={() => addUserToAccess(inventory.id)}
-            >
-              Add User
-            </button>
+            {isLoggedIn && inventory.has_access.includes(user.user_id) && (
+              <div>
+                <label htmlFor="new-inventory-new-user-input">Users with access to the inventory</label>
+                <br />
+                <ul>
+                  {hasAccess.map(userId => (
+                    <li key={userId}>{userId}</li>
+                  ))}
+                </ul>
+                <input
+                  type="text"
+                  placeholder="Type user ID, name or email"
+                  id="new-inventory-new-user-input"
+                  value={newUserInput}
+                  onChange={e => setNewUserInput(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => addUserToAccess(inventory.id)}
+                >
+                  Add User
+                </button>
+              </div>)}
           </Tab>
         ))}
       </Tabs >
