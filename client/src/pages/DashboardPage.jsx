@@ -22,7 +22,7 @@ function DashboardPage() {
   const [newUserInput, setNewUserInput] = useState('');
   const [fieldNameList, setFieldNameList] = useState([]);
   const [fieldTypeList, setFieldTypeList] = useState([]);
-  const [fieldStateList, setFieldStateList] = useState(Array(15).fill(false));
+  const [fieldStateList, setFieldStateList] = useState([]);
   const [customIdList, setCustomIdList] = useState([{ type: 'fixed', value: 'ABC' }, { type: '20-bit-random-number', value: 'D6' }, { type: 'sequence', value: 'D4' }, { type: 'date/time', value: 'yyyy-mm-dd' }]);
   // fixed, 20-bit random, 32-bit random, 6-digit random, 9-digit random, guid, sequence, date/time
   const customIdFormatting = [["input"], ["D6", "X5"], ["D10", "X8"], ["D6", "X6"], ["D9", "X9"], ["Default"], ["D4", "D"], ['yyyy-mm-dd-hh-mmm', 'hh-mmm', 'yyyy-mm-dd', 'yyyy', 'mm', 'dd', 'ddd', 'yyyy-mm', 'mm-dd', 'mm-ddd']];
@@ -183,7 +183,7 @@ function DashboardPage() {
       setFieldNameList([]);
       setFieldTypeList([]);
       setHasAccess([]);
-      setFieldStateList(Array(15).fill(false));
+      setFieldStateList([]);
       setCustomIdList([{ type: 'fixed', value: 'ABC' }, { type: '20-bit-random-number', value: 'D6' }, { type: 'sequence', value: 'D4' }, { type: 'date/time', value: 'yyyy-mm-dd' }]);
       fetchInventories();
     } catch (err) {
@@ -208,17 +208,13 @@ function DashboardPage() {
   };
 
   const handleAddField = () => {
-    const activeFields = fieldStateList.filter(item => item === true).length;
-    if (activeFields >= 15) {
+    if (fieldStateList.length >= 15) {
       showToast('Limit reached', 'You can\'t add up to 15 fields', 'bg-warning');
       return;
     }
-    setFieldStateList(prev => {
-      const newList = [...prev];
-      const index = newList.findIndex(item => item === false);
-      if (index !== -1) newList[index] = true;
-      return newList;
-    });
+    setFieldNameList(prev => [...prev, '']);
+    setFieldTypeList(prev => [...prev, '']);
+    setFieldStateList(prev => [...prev, true]);
   };
 
   const handleCustomIdChange = (index, field, newValue) => {
@@ -241,9 +237,9 @@ function DashboardPage() {
       showToast('Warning', 'No fields selected', 'bg-warning');
       return;
     }
-    setFieldNameList(fieldNameList.map((name, index) => !selectedFields.includes(`field_${index}_selector`) ? name : ''));
-    setFieldTypeList(fieldTypeList.map((type, index) => !selectedFields.includes(`field_${index}_selector`) ? type : ''));
-    setFieldStateList(fieldStateList.map((state, index) => !selectedFields.includes(`field_${index}_selector`) ? state : false));
+    setFieldNameList(fieldNameList.filter((_, index) => !selectedFields.includes(`field_${index}_selector`)));
+    setFieldTypeList(fieldTypeList.filter((_, index) => !selectedFields.includes(`field_${index}_selector`)));
+    setFieldStateList(fieldStateList.filter((_, index) => !selectedFields.includes(`field_${index}_selector`)));
     fieldSelectors.forEach(input => { input.checked = false; });
     document.getElementById('all_fields_selector').checked = false;
     showToast('Success', `${selectedFields.length} selected fields removed successfully`, 'bg-success');
@@ -643,7 +639,7 @@ function DashboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {fieldStateList.filter(item => item === true).map((_, index) => (
+                    {fieldStateList.map((_, index) => (
                       <tr key={`field-${index}`}>
                         <td>{index + 1}</td>
                         <td>
