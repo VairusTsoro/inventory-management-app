@@ -20,10 +20,10 @@ function DashboardPage() {
   const [isPublic, setIsPublic] = useState(false);
   const [hasAccess, setHasAccess] = useState([]);
   const [newUserInput, setNewUserInput] = useState('');
-  const [fieldNameList, setFieldNameList] = useState(Array(15).fill(""));
-  const [fieldTypeList, setFieldTypeList] = useState(Array(15).fill(""));
+  const [fieldNameList, setFieldNameList] = useState([]);
+  const [fieldTypeList, setFieldTypeList] = useState([]);
   const [fieldStateList, setFieldStateList] = useState(Array(15).fill(false));
-  const [customIdList, setCustomIdList] = useState([{ type: 'fixed', value: 'ABC' }, { type: '20-bit-random-number', value: 'D6' }, { type: 'sequence', value: 'D4' }, { type: 'date/time', value: 'yyyy-mm-dd' }, { type: '', value: '' }, { type: '', value: '' }, { type: '', value: '' }, { type: '', value: '' }, { type: '', value: '' }, { type: '', value: '' }]);
+  const [customIdList, setCustomIdList] = useState([{ type: 'fixed', value: 'ABC' }, { type: '20-bit-random-number', value: 'D6' }, { type: 'sequence', value: 'D4' }, { type: 'date/time', value: 'yyyy-mm-dd' }]);
   const customIdFormating = // fixed, 20-bit random, 32-bit random, 6-digit random, 9-digit random, guid, sequence, date/time
     [["input"], ["D6", "X5"], ["D10", "X8"], ["D6", "X6"], ["D9", "X9"], ["Default"], ["D4", "D"], ['yyyy-mm-dd-hh-mmm', 'hh-mmm', 'yyyy-mm-dd', 'yyyy', 'mm', 'dd', 'ddd', 'yyyy-mm', 'mm-dd', 'mm-ddd']];
   const customIdFormatingIndexes = {
@@ -155,19 +155,19 @@ function DashboardPage() {
       const result = await createInventory({
         title, description, category, tags, image, is_public: isPublic, owner_id: user.user_id, has_access: [user.user_id],
         custom_fields: {
-          ...fieldNameList.filter(name => name.trim() !== '').reduce((acc, name, index) => {
+          ...fieldNameList.reduce((acc, name, index) => {
             acc[name] = fieldTypeList[index];
             return acc;
           }, {})
         },
         custom_fields_is_public: {
-          ...fieldNameList.filter(name => name.trim() !== '').reduce((acc, name, index) => {
+          ...fieldNameList.reduce((acc, name, index) => {
             acc[name] = field_is_public_checkboxs[index]?.checked ?? false;
             return acc;
           }, {})
         },
         custom_ids: {
-          ...customIdList.filter(item => item.type && item.value.trim() !== '').reduce((acc, custom_id) => {
+          ...customIdList.reduce((acc, custom_id) => {
             acc[custom_id.type] = custom_id.value;
             return acc;
           }, {})
@@ -180,11 +180,11 @@ function DashboardPage() {
       setTags('');
       setImage('');
       setIsPublic(false);
-      setFieldNameList(Array(15).fill(""));
-      setFieldTypeList(Array(15).fill(""));
+      setFieldNameList([]);
+      setFieldTypeList([]);
       setHasAccess([]);
       setFieldStateList(Array(15).fill(false));
-      setCustomIdList([{ type: 'fixed', value: 'ABC' }, { type: '20-bit-random-number', value: 'D6' }, { type: 'sequence', value: 'D4' }, { type: 'date/time', value: 'yyyy-mm-dd' }, { type: '', value: '' }, { type: '', value: '' }, { type: '', value: '' }, { type: '', value: '' }, { type: '', value: '' }, { type: '', value: '' }]);
+      setCustomIdList([{ type: 'fixed', value: 'ABC' }, { type: '20-bit-random-number', value: 'D6' }, { type: 'sequence', value: 'D4' }, { type: 'date/time', value: 'yyyy-mm-dd' }]);
       fetchInventories();
     } catch (err) {
       showToast('Error', 'Error creating inventory', 'bg-danger');
@@ -250,14 +250,7 @@ function DashboardPage() {
   };
 
   const addCustomId = () => {
-    let customIdAdded = false;
-    setCustomIdList(list => list.map(element => {
-      if (element.type === '' && !customIdAdded) {
-        customIdAdded = true;
-        return { type: 'fixed', value: 'ABC' };
-      }
-      return element;
-    }));
+    setCustomIdList([...customIdList, { type: 'fixed', value: 'ABC' }]);
   };
 
   const removeCustomId = (index) => {
@@ -724,7 +717,7 @@ function DashboardPage() {
                     });
                   }}></i>
                 <div className="custom-id-settings">
-                  {customIdList.filter(item => item.type !== '' && item.value !== '').map((item, idx) => (
+                  {customIdList.map((item, idx) => (
                     <div key={idx} className="custom-id-container d-flex align-items-center mb-2" draggable="true"
                       onDragStart={event => {
                         setDraggingIndex(idx);
@@ -792,14 +785,14 @@ function DashboardPage() {
                           value={item.value}
                           onChange={e => handleCustomIdChange(idx, 'value', e.target.value)}
                         >
-                          {customIdFormating[customIdFormatingIndexes[item.type]].map((format, formatIdx) => (
+                          {(customIdFormating[customIdFormatingIndexes[item.type]] || []).map((format, formatIdx) => (
                             <option key={formatIdx} value={format}>{format}</option>
                           ))}
                         </select>
                       )}
                     </div>
                   ))}
-                  <button type="button" className="btn btn-secondary mt-2" onClick={customIdList.filter(item => item.type !== '' && item.value !== '').length < 10 ? addCustomId : () => showToast('Limit reached', 'You can only add up to 10 custom IDs.', 'bg-warning')}>
+                  <button type="button" className="btn btn-secondary mt-2" onClick={customIdList.length < 10 ? addCustomId : () => showToast('Limit reached', 'You can only add up to 10 custom IDs.', 'bg-warning')}>
                     Add Custom ID
                   </button>
                 </div>
