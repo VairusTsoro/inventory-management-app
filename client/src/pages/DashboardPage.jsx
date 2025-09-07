@@ -153,21 +153,21 @@ function DashboardPage() {
     try {
       const field_is_public_checkboxs = document.querySelectorAll('.field_is_public');
       const result = await createInventory({
-        title, description, category, tags, image, is_public: isPublic, owner_id: user.user_id, has_access: String(user.user_id),
+        title, description, category, tags, image, is_public: isPublic, owner_id: user.user_id, has_access: [user.user_id],
         custom_fields: {
-          ...fieldNameList.filter(name => name).reduce((acc, name, index) => {
+          ...fieldNameList.filter(name => name.trim() !== '').reduce((acc, name, index) => {
             acc[name] = fieldTypeList[index];
             return acc;
           }, {})
         },
         custom_fields_is_public: {
-          ...fieldNameList.filter(name => name).reduce((acc, name, index) => {
+          ...fieldNameList.filter(name => name.trim() !== '').reduce((acc, name, index) => {
             acc[name] = field_is_public_checkboxs[index]?.checked ?? false;
             return acc;
           }, {})
         },
         custom_ids: {
-          ...customIdList.filter(item => item.type && item.value).reduce((acc, custom_id) => {
+          ...customIdList.filter(item => item.type && item.value.trim() !== '').reduce((acc, custom_id) => {
             acc[custom_id.type] = custom_id.value;
             return acc;
           }, {})
@@ -250,7 +250,14 @@ function DashboardPage() {
   };
 
   const addCustomId = () => {
-    setCustomIdList(list => [...list, { type: 'fixed', value: '' }]);
+    let customIdAdded = false;
+    setCustomIdList(list => list.map(element => {
+      if (element.type === '' && !customIdAdded) {
+        customIdAdded = true;
+        return { type: 'fixed', value: 'ABC' };
+      }
+      return element;
+    }));
   };
 
   const removeCustomId = (index) => {
