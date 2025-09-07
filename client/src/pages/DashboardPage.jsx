@@ -24,9 +24,9 @@ function DashboardPage() {
   const [fieldTypeList, setFieldTypeList] = useState([]);
   const [fieldStateList, setFieldStateList] = useState(Array(15).fill(false));
   const [customIdList, setCustomIdList] = useState([{ type: 'fixed', value: 'ABC' }, { type: '20-bit-random-number', value: 'D6' }, { type: 'sequence', value: 'D4' }, { type: 'date/time', value: 'yyyy-mm-dd' }]);
-  const customIdFormating = // fixed, 20-bit random, 32-bit random, 6-digit random, 9-digit random, guid, sequence, date/time
-    [["input"], ["D6", "X5"], ["D10", "X8"], ["D6", "X6"], ["D9", "X9"], ["Default"], ["D4", "D"], ['yyyy-mm-dd-hh-mmm', 'hh-mmm', 'yyyy-mm-dd', 'yyyy', 'mm', 'dd', 'ddd', 'yyyy-mm', 'mm-dd', 'mm-ddd']];
-  const customIdFormatingIndexes = {
+  // fixed, 20-bit random, 32-bit random, 6-digit random, 9-digit random, guid, sequence, date/time
+  const customIdFormatting = [["input"], ["D6", "X5"], ["D10", "X8"], ["D6", "X6"], ["D9", "X9"], ["Default"], ["D4", "D"], ['yyyy-mm-dd-hh-mmm', 'hh-mmm', 'yyyy-mm-dd', 'yyyy', 'mm', 'dd', 'ddd', 'yyyy-mm', 'mm-dd', 'mm-ddd']];
+  const customIdFormattingIndexes = {
     'fixed': 0,
     '20-bit-random-number': 1,
     '32-bit-random-number': 2,
@@ -222,10 +222,10 @@ function DashboardPage() {
   };
 
   const handleCustomIdChange = (index, field, newValue) => {
-    const regex = /^[a-zA-Z0-9]+$/;
+    const regex = /[^A-Za-z0-9]/g;
     if (customIdList[index].type === 'fixed') {
       if (!regex.test(newValue)) showToast('Warning', 'Invalid format. Can only use alphanumeric characters.', 'bg-warning');
-      newValue = newValue.replace(/[^aA0-zZ9]/g, '').toUpperCase();
+      newValue = newValue.replace(regex, '').toUpperCase();
     }
     setCustomIdList(list =>
       list.map((item, i) =>
@@ -259,7 +259,11 @@ function DashboardPage() {
   };
 
   const addFieldType = (index, type) => {
-    const fieldTypeInputsValues = Array.from(document.querySelectorAll('.field_type')).map(input => input.value);
+    const fieldTypeInputsValues = Array.from(document.querySelectorAll('.field_type')).map(input => {
+      if (input.type === 'checkbox') return input.checked;
+      if (input.type === 'file') return input.files;
+      return input.value;
+    });
     const fieldTypeValuesCount = fieldTypeInputsValues.reduce((acc, type) => {
       if (type === '') return acc;
       acc[type] = (acc[type] || 0) + 1;
@@ -649,7 +653,7 @@ function DashboardPage() {
                               <input
                                 type="text"
                                 className="form-control field_name"
-                                id="new-field-name"
+                                id={`new-field-name-${index}`}
                                 placeholder="Enter field name"
                                 value={fieldNameList[index]}
                                 onChange={e => handleFieldNameChange(index, e.target.value)}
@@ -785,7 +789,7 @@ function DashboardPage() {
                           value={item.value}
                           onChange={e => handleCustomIdChange(idx, 'value', e.target.value)}
                         >
-                          {(customIdFormating[customIdFormatingIndexes[item.type]] || []).map((format, formatIdx) => (
+                          {(customIdFormatting[customIdFormattingIndexes[item.type]] || []).map((format, formatIdx) => (
                             <option key={formatIdx} value={format}>{format}</option>
                           ))}
                         </select>
