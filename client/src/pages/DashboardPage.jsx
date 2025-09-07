@@ -226,7 +226,6 @@ function DashboardPage() {
     if (customIdList[index].type === 'fixed') {
       if (!regex.test(newValue)) showToast('Warning', 'Invalid format. Can only use alphanumeric characters.', 'bg-warning');
       newValue = newValue.replace(/[^aA0-zZ9]/g, '').toUpperCase();
-      // if (newValue === '') newValue = 'ABC';
     }
     setCustomIdList(list =>
       list.map((item, i) =>
@@ -548,9 +547,6 @@ function DashboardPage() {
             </table>
           </Tab>
         )}
-        <Tab eventKey="user_settings" title="Settings" className='tab'>
-          <p data-translate>Welcome to the settings tab!</p>
-        </Tab>
         {isLoggedIn && (
           <Tab eventKey="new_inventory" title="New Inventory" className='tab new-inventory-tab'>
             <Tabs className='tabs new-inventory-tabs'>
